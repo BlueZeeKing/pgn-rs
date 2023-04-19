@@ -20,7 +20,7 @@ impl Visitor for TestVisitor {
         self.progress.inc(1);
     }
 
-    fn header(&mut self, header: pgn_rs::Header) {
+    fn header(&mut self, _header: pgn_rs::Header) {
         // dbg!(header);
     }
 

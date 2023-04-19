@@ -11,10 +11,6 @@ impl<'a> PGNReader<'a> {
         Self { data: data.trim() } // start at one to ignore the first "["
     }
 
-    fn get_char(&self, index: usize) -> char {
-        self.data[index..index + 1].chars().next().unwrap()
-    }
-
     pub fn read(self, visitor: &mut impl Visitor) {
         for piece in self.data.split("\n\n") {
             visitor.start_game();
