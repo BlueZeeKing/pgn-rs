@@ -30,17 +30,21 @@ pub enum SAN {
         starting_rank: Option<Rank>,
         starting_file: Option<File>,
     },
-    Castle {
+    Castle { // TODO: Doesn't have check or checkmate info
         is_king_side: bool,
     },
 }
 
 impl SAN {
     pub fn new(san: &str) -> Self {
-        if san == "O-O" {
-            return Self::Castle { is_king_side: true };
-        } else if san == "O-O-O" {
+        // dbg!(san);
+        let san = san.trim_end_matches(|char: char| (char == '!' || char == '?'));
+        // dbg!(san);
+        if san.starts_with("O-O-O") {
+            // This order cannot be changed
             return Self::Castle { is_king_side: false };
+        } else if san.starts_with("O-O") {
+            return Self::Castle { is_king_side: true };
         }
 
         let (piece, remaining) = match get_piece(san.chars().next().unwrap()) {
@@ -104,6 +108,7 @@ impl SAN {
     }
 
     pub fn to_move(&self, position: &Board) -> ChessMove {
+        // dbg!(position.piece_on(Square::A8));
         match self {
             Self::Castle { is_king_side } =>
                 ChessMove::new(
@@ -119,7 +124,7 @@ impl SAN {
                 piece,
                 dest,
                 capture: _,
-                promotion: _,
+                promotion,
                 check: _,
                 check_mate: _,
                 starting_rank,
@@ -133,7 +138,8 @@ impl SAN {
                             (starting_rank.is_none() ||
                                 matches!(starting_rank, Some(rank) if rank == &chess_move.get_source().get_rank())) &&
                             (starting_file.is_none() ||
-                                matches!(starting_file, Some(file) if file == &chess_move.get_source().get_file()))
+                                matches!(starting_file, Some(file) if file == &chess_move.get_source().get_file())) &&
+                            chess_move.get_promotion() == *promotion
                     )
                     .unwrap()
             }
