@@ -65,7 +65,7 @@ impl SAN {
         );
 
         let (capture, remaining) = if
-            remaining.len() > 0 &&
+            !remaining.is_empty() &&
             &remaining[remaining.len() - 1..] == "x"
         {
             (true, &remaining[..remaining.len() - 1])
@@ -73,7 +73,7 @@ impl SAN {
             (false, remaining)
         };
 
-        let (starting_file, remaining) = if remaining.len() > 0 {
+        let (starting_file, remaining) = if !remaining.is_empty() {
             match File::from_str(&remaining[0..1]) {
                 Ok(file) => (Some(file), &remaining[1..]),
                 Err(_) => (None, remaining),
@@ -82,7 +82,7 @@ impl SAN {
             (None, remaining)
         };
 
-        let starting_rank = if remaining.len() > 0 {
+        let starting_rank = if !remaining.is_empty() {
             match Rank::from_str(&remaining[0..1]) {
                 Ok(file) => Some(file),
                 Err(_) => None,
@@ -118,10 +118,10 @@ impl SAN {
             Self::Normal {
                 piece,
                 dest,
-                capture,
-                promotion,
-                check,
-                check_mate,
+                capture: _,
+                promotion: _,
+                check: _,
+                check_mate: _,
                 starting_rank,
                 starting_file,
             } => {
