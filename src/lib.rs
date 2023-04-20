@@ -11,39 +11,43 @@ impl<'a> PGNReader<'a> {
         Self { data: data.trim() } // start at one to ignore the first "["
     }
 
-    pub fn read(self, visitor: &mut impl Visitor) {
-        for piece in self.data.split("\n\n") {
+    pub fn read(self, visitor: &mut impl Visitor<'a>) {
+        for piece in self.data.split("\n\n").map(|str| str.trim()) {
             visitor.start_game();
 
             if piece.starts_with('[') {
-                for mut header in piece
-                    .lines()
-                    .map(|header| header.trim_start_matches('[').trim_end_matches(']').split(' ')) {
+                for mut header in piece.lines().map(|header| {
+                    header
+                        .trim_start_matches('[')
+                        .trim_end_matches(']')
+                        .split(' ')
+                }) {
                     let start = header.next().unwrap(); // TODO: Error handling here
                     let end = header.next().unwrap().trim_matches('"');
                     visitor.header(Header(start, end));
                 }
             } else if piece.starts_with('1') {
+                let mut final_movetext_item = "";
+
                 for item in piece.split(|char: char| (char == '\n' || char == ' ')) {
-                    if
-                        item.starts_with(
-                            |char: char|
-                                char.is_numeric() ||
-                                char == '*' ||
-                                char == '{' ||
-                                char == '}' ||
-                                char == '[' ||
-                                char == '-' ||
-                                char == '#'
-                        )
-                    {
+                    final_movetext_item = item;
+
+                    if item.starts_with(|char: char| {
+                        char.is_numeric()
+                            || char == '*'
+                            || char == '{'
+                            || char == '}'
+                            || char == '['
+                            || char == '-'
+                            || char == '#'
+                    }) {
                         continue;
                     }
 
                     visitor.san(SAN::new(item));
                 }
 
-                visitor.end_game();
+                visitor.end_game(final_movetext_item);
             }
         }
 
@@ -111,9 +115,9 @@ impl<'a> PGNReader<'a> {
 #[derive(Debug)]
 pub struct Header<'a>(&'a str, &'a str);
 
-pub trait Visitor {
+pub trait Visitor<'a> {
     fn start_game(&mut self);
-    fn end_game(&mut self);
+    fn end_game(&mut self, result: &'a str);
     fn header(&mut self, header: Header);
     fn san(&mut self, san: SAN);
 }

@@ -2,7 +2,7 @@ use std::fs::read_to_string;
 
 use chess::Board;
 use indicatif::ProgressBar;
-use pgn_rs::{ PGNReader, Visitor, san::SAN };
+use pgn_rs::{san::SAN, PGNReader, Visitor};
 
 const NUM_GAMES: u64 = 121332;
 
@@ -11,13 +11,14 @@ struct TestVisitor {
     progress: ProgressBar,
 }
 
-impl Visitor for TestVisitor {
+impl Visitor<'_> for TestVisitor {
     fn start_game(&mut self) {
         self.chess = Board::default();
     }
 
-    fn end_game(&mut self) {
+    fn end_game(&mut self, _outcome: &str) {
         self.progress.inc(1);
+        // dbg!(outcome);
     }
 
     fn header(&mut self, _header: pgn_rs::Header) {
@@ -34,7 +35,10 @@ impl Visitor for TestVisitor {
 
 impl TestVisitor {
     fn new() -> Self {
-        Self { chess: Board::default(), progress: ProgressBar::new(NUM_GAMES) }
+        Self {
+            chess: Board::default(),
+            progress: ProgressBar::new(NUM_GAMES),
+        }
     }
 }
 
