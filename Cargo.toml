@@ -1,7 +1,13 @@
 [package]
 name = "pgn-rs"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+description = "An extremely barebones PGN parserer"
+license = "MIT"
+authors = ["BlueZeeKing"]
+repository = "https://github.com/BlueZeeKing/pgn-rs"
+
+exclude = ["lichess_test_collection.pgn"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
